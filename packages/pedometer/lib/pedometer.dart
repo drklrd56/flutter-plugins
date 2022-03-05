@@ -32,8 +32,8 @@ class Pedometer {
   static Stream<PedestrianStatus> _androidStream(
       Stream<PedestrianStatus> stream) {
     /// Init a timer and a status
-    Timer t;
-    int pedestrianStatus;
+    Timer? t;
+    int? pedestrianStatus;
 
     /// Listen for events on the original stream
     /// Transform these events by using the timer
@@ -42,7 +42,7 @@ class Pedometer {
       /// If the timer has been started, it should be cancelled
       /// to prevent sending out additional 'walking' events
       if (t != null) {
-        t.cancel();
+        t?.cancel();
 
         /// If a previous status was either not set yet, or was 'stopped'
         /// then a 'walking' event should be emitted.
@@ -81,19 +81,18 @@ class Pedometer {
 
   /// events will only arrive if the service has started, so remember to call
   /// `startPlatform`
-  static Stream<StepCount> get altStepCountStream =>
-    _altStepCountChannel
-        .receiveBroadcastStream()
-        .map((event) => StepCount._(event));
+  static Stream<StepCount> get altStepCountStream => _altStepCountChannel
+      .receiveBroadcastStream()
+      .map((event) => StepCount._(event));
 
   /// returns true if android service has started
-  static Future<bool> hasPlatformStarted() {
+  static Future<bool?> hasPlatformStarted() {
     try {
       return platform.invokeMethod('hasPlatformStarted');
     } on PlatformException catch (e) {
       print("Couldn't check platform code. ${e.message}");
+      return Future.value(null);
     }
-    return null;
   }
 
   /// start the step tracking service on android
@@ -117,8 +116,8 @@ class Pedometer {
 
 /// A DTO for steps taken containing the number of steps taken.
 class StepCount {
-  DateTime _timeStamp;
-  int _steps = 0;
+  late DateTime _timeStamp;
+  late int _steps = 0;
 
   StepCount._(dynamic e) {
     _steps = e as int;
@@ -146,12 +145,12 @@ class PedestrianStatus {
     _walking: _WALKING
   };
 
-  DateTime _timeStamp;
-  String _status = _UNKNOWN;
+  late DateTime _timeStamp;
+  late String _status = _UNKNOWN;
 
   PedestrianStatus._(dynamic t) {
     int _type = t as int;
-    _status = _STATUSES[_type];
+    _status = _STATUSES[_type]!;
     _timeStamp = DateTime.now();
   }
 
